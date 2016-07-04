@@ -17,6 +17,6 @@ Route::get('/', function () {
 
 Route::group(['prefix' => 'api'], function () {
     Route::group(['prefix' => 'v1'], function () {
-        Route::resource('books', 'API\BookController');
+        Route::resource('books', 'API\BookListController');
     });
 });
