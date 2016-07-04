@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers\API;
 
+use Validator;
 use Illuminate\Http\Request;
 
+use App\Book;
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
 
@@ -14,9 +16,37 @@ class BookListController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        //
+        $validator = Validator::make($request->all(), [
+            'isbn' => 'digits_between:10,13'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'message' => $validator->errors()->first()
+            ], 400);
+        }
+
+        $books = [];
+
+        if ($request->has('isbn')) {
+            $isbn = $request->get('isbn');
+            $books = Book::where('isbn', $isbn)->get();
+
+            if (sizeof($books) == 0) {
+                $books = Book::search($isbn);
+            }
+        }
+        else {
+            // TODO: use pagination instead of all
+            $books = Book::all();
+        }
+
+        return response()->json([
+            'message' => 'OK',
+            'data' => $books
+        ], 200);
     }
 
     /**
